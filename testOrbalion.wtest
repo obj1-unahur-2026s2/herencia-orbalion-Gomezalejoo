@@ -1,0 +1,115 @@
+import orbalion.*
+
+describe "Tests de Orbalion - Checkpoint 1" {
+
+    const unEntrenador = new Entrenadores(
+        cantCiclosSolares = 5,
+        estaEnSintonia = true,
+        nivelDePrecision = 85,
+        rol = "Guía Mental"
+    )
+
+    test "Un entrenador no puede tener un rol distinto a los autorizados por la FOZ" {
+        const entrenadorRebelde = new Entrenadores(
+            cantCiclosSolares = 2,
+            estaEnSintonia = false,
+            nivelDePrecision = 50,
+            rol = "Guía Mental"
+        )
+        
+        assert.throwsExceptionWithMessage("Rol no homologado por la FOZ", { 
+            entrenadorRebelde.rol("Preparador Físico Galáctico") 
+        })
+    }
+
+    test "Un equipo lumínico con radiación > 5000 y sin tecnologías activas su energía total es su energía base" {
+        const equipoLuminico = new Luminicos(
+            nombre = "Lumens Alpha",
+            nivelDeEnergiaBase = 1000,
+            entrenador = unEntrenador,
+            nivelDeRadiacion = 6000
+        )
+        
+        assert.equals(1000, equipoLuminico.energiaTotal())
+    }
+
+    test "Un equipo lumínico con radiación < 5000 obtiene el bono del 10%" {
+        const equipoLuminicoBajo = new Luminicos(
+            nombre = "Lumens Beta",
+            nivelDeEnergiaBase = 1000,
+            entrenador = unEntrenador,
+            nivelDeRadiacion = 4000
+        )
+        
+        // 1000 de base + 10% = 1100
+        assert.equals(1100, equipoLuminicoBajo.energiaTotal())
+    }
+
+    test "Un equipo sintético con 6 módulos aplica correctamente la penalización del 20%" {
+        const equipoSinteticoExceso = new Sinteticos(
+            nombre = "CyberCore",
+            nivelDeEnergiaBase = 1000,
+            entrenador = unEntrenador,
+            nivelProcesamiento = 50,
+            cantModulosActivos = 6,
+            estaCertificado = true
+        )
+        
+        // 1000 con penalización del 20% (osea, 80%) = 800
+        assert.equals(800, equipoSinteticoExceso.energiaTotal())
+    }
+
+    test "Un equipo sintético con 4 módulos y 2 tecnologías complementarias suma correctamente los valores energéticos" {
+        const tech1 = new Tecnologia(nombre = "Shield", valorEnergetico = 200, activa = true)
+        const tech2 = new Tecnologia(nombre = "Booster", valorEnergetico = 300, activa = true)
+        
+        const equipoSinteticoNormal = new Sinteticos(
+            nombre = "RoboTeam",
+            nivelDeEnergiaBase = 1000,
+            entrenador = unEntrenador,
+            nivelProcesamiento = 40,
+            cantModulosActivos = 4,
+            estaCertificado = false,
+            tecnologiasComp = [tech1, tech2]
+        )
+        
+        // 1000 (base) + 200 + 300 = 1500 (sin penalización porque módulos <= 5)
+        assert.equals(1500, equipoSinteticoNormal.energiaTotal())
+    }
+}
+
+
+////////////////////////////
+
+test "Estratega cuántico con 12 ciclos y precisión 90 es de élite galáctica" {
+        const estratega = new Entrenadores(
+            cantCiclosSolares = 12,
+            estaEnSintonia = false, // No importa para el estratega
+            nivelDePrecision = 90,
+            rol = "Estratega Cuántico"
+        )
+        
+        assert.that(estratega.esDeEliteGalactica())
+    }
+
+    test "Arquitecto de energía con 11 ciclos pero sin sintonía no es de élite" {
+        const arquitecto = new Entrenadores(
+            cantCiclosSolares = 11,
+            estaEnSintonia = false,
+            nivelDePrecision = 50,
+            rol = "Arquitecto de Energía"
+        )
+        
+        assert.notThat(arquitecto.esDeEliteGalactica())
+    }
+
+    test "Guía mental con 15 ciclos siempre es de élite" {
+        const guia = new Entrenadores(
+            cantCiclosSolares = 15,
+            estaEnSintonia = false,
+            nivelDePrecision = 40,
+            rol = "Guía Mental"
+        )
+        
+        assert.that(guia.esDeEliteGalactica())
+    }
